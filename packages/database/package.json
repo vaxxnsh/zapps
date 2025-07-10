@@ -4,23 +4,21 @@
   "private": true,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-    "types": "./src/index.d.ts",
+  "types": "./src/index.d.ts",
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push --skip-generate",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:reset": "prisma migrate reset --force",
-    "db:studio": "prisma studio",
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "db:generate": "dotenv -e .env -- prisma generate",
+    "db:push": "dotenv -e .env -- prisma db push --skip-generate",
+    "db:migrate:dev": "dotenv -e .env -- prisma migrate dev",
+    "db:studio": "dotenv -e .env -- prisma studio",
+    "db:reset": "dotenv -e .env prisma migrate reset --force",
+    "build": "tsc -b"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
-    "prisma": "^5.0.0",
-    "tsup": "^6.0.0",
+    "prisma": "^6.11.1",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^6.11.1"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "hooks",
+  "name": "primary_backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,11 +9,14 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "devDependencies": {
-    "@types/express": "^5.0.3"
-  },
   "dependencies": {
     "@repo/database": "*",
-    "express": "^5.1.0"
+    "@types/express": "^5.0.3",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "zod": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
   }
 }

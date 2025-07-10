@@ -40,6 +40,7 @@ model Action {
 
 model TypeAction {
   id String @id @default(uuid())
+  name String
   Actions Action[]
 }
 
@@ -53,4 +54,12 @@ model ZapRun {
   id String @id @default(uuid())
   zap_id String
   zap Zap @relation(fields: [zap_id], references: [id])
+  metadata Json?
+  zapOutbox ZapRunOutbox?
+}
+
+model ZapRunOutbox {
+  id String @id @default(uuid())
+  zapRun_id String @unique
+  zapRun ZapRun @relation(fields: [zapRun_id],references: [id])
 }
