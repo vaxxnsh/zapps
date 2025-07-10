@@ -1,0 +1,17 @@
+{
+  "name": "proccesor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "tsc -b && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@repo/database": "*",
+    "kafkajs": "^2.2.4"
+  },
+  "description": ""
+}
