@@ -13,13 +13,16 @@ model User {
   name String
   email String
   password String
+  zaps Zap[]
 }
 
 model Zap {
   id String @id @default(uuid())
   trigger Trigger?
   zapRun ZapRun[]
-  Actions Action[]
+  actions Action[]
+  userId Int 
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Trigger {
@@ -32,6 +35,7 @@ model Trigger {
 
 model Action {
   id String @id @default(uuid())
+  sortingOrder Int @default(0)
   zap_id String
   zap Zap @relation(fields: [zap_id],references: [id])
   type_id String

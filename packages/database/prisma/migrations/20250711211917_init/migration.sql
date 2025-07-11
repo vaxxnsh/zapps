@@ -1,27 +1,17 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
-  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `password` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Made the column `name` on table `User` required. This step will fail if there are existing NULL values in that column.
-
-*/
--- DropForeignKey
-ALTER TABLE "Post" DROP CONSTRAINT "Post_authorId_fkey";
-
--- DropIndex
-DROP INDEX "User_email_key";
-
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "password" TEXT NOT NULL,
-ALTER COLUMN "name" SET NOT NULL;
-
--- DropTable
-DROP TABLE "Post";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Zap" (
     "id" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Zap_pkey" PRIMARY KEY ("id")
 );
@@ -38,6 +28,7 @@ CREATE TABLE "Trigger" (
 -- CreateTable
 CREATE TABLE "Action" (
     "id" TEXT NOT NULL,
+    "sortingOrder" INTEGER NOT NULL DEFAULT 0,
     "zap_id" TEXT NOT NULL,
     "type_id" TEXT NOT NULL,
 
@@ -47,6 +38,7 @@ CREATE TABLE "Action" (
 -- CreateTable
 CREATE TABLE "TypeAction" (
     "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
 
     CONSTRAINT "TypeAction_pkey" PRIMARY KEY ("id")
 );
@@ -63,12 +55,27 @@ CREATE TABLE "TypeTrigger" (
 CREATE TABLE "ZapRun" (
     "id" TEXT NOT NULL,
     "zap_id" TEXT NOT NULL,
+    "metadata" JSONB,
 
     CONSTRAINT "ZapRun_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ZapRunOutbox" (
+    "id" TEXT NOT NULL,
+    "zapRun_id" TEXT NOT NULL,
+
+    CONSTRAINT "ZapRunOutbox_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Trigger_zap_id_key" ON "Trigger"("zap_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ZapRunOutbox_zapRun_id_key" ON "ZapRunOutbox"("zapRun_id");
+
+-- AddForeignKey
+ALTER TABLE "Zap" ADD CONSTRAINT "Zap_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Trigger" ADD CONSTRAINT "Trigger_zap_id_fkey" FOREIGN KEY ("zap_id") REFERENCES "Zap"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -84,3 +91,6 @@ ALTER TABLE "Action" ADD CONSTRAINT "Action_type_id_fkey" FOREIGN KEY ("type_id"
 
 -- AddForeignKey
 ALTER TABLE "ZapRun" ADD CONSTRAINT "ZapRun_zap_id_fkey" FOREIGN KEY ("zap_id") REFERENCES "Zap"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ZapRunOutbox" ADD CONSTRAINT "ZapRunOutbox_zapRun_id_fkey" FOREIGN KEY ("zapRun_id") REFERENCES "ZapRun"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
