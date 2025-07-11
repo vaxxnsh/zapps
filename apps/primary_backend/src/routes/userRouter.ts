@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { StatusCodes } from "http-status-codes";
-import { authMiddleware } from "src/middleware";
-import { SignInBody, SignUpBody } from "src/validations/userSchema";
+import { authMiddleware } from "../middleware";
+import { SignInBody, SignUpBody } from "../validations/userSchema";
 import { prisma } from "@repo/database";
-
+import jwt from "jsonwebtoken";
+import z, { object } from "zod";
+import { getErrorStrings } from "../utils";
+import { JWT_SECRET } from "../config";
 
 const userRouter = Router();
 
@@ -13,7 +16,6 @@ userRouter.post("/signup", async (req,res) => {
     if (!signUpBody.success) {
         res.status(StatusCodes.BAD_REQUEST).json({
             error : "Invalid Inputs",
-            all_errors : signUpBody.error
         })
         return
     }
@@ -49,7 +51,7 @@ userRouter.post("/signup", async (req,res) => {
 
         res.status(StatusCodes.CREATED).json({
             message : "User created successfully",
-            user : user,
+            userId : user.id,
         })
 
     }
@@ -60,7 +62,7 @@ userRouter.post("/signup", async (req,res) => {
     }
 });
 
-userRouter.post("/signin",(req,res) => {
+userRouter.post("/signin",async (req,res) => {
     const signInBody = SignInBody.safeParse(req.body);
 
     if (!signInBody.success) {
@@ -72,11 +74,53 @@ userRouter.post("/signin",(req,res) => {
     }
     const {email,password} = signInBody.data;
 
+    const user = await prisma.user.findFirst({
+        where : {
+            email : email,
+        }
+    });
 
+    if (!user) {
+        res.status(StatusCodes.NOT_FOUND).json({
+            error : "No user present with that email",
+        })
+        return
+    }
+
+    if (user.password !== password) {
+        res.status(StatusCodes.UNAUTHORIZED).json({
+            error : "Incorrect email or password"
+        })
+        return
+    }
+
+    const token = jwt.sign({
+        id : user.id
+    },JWT_SECRET)
+
+    res.status(StatusCodes.OK).send({
+        token : token
+    })
 })
 
-userRouter.get("/",authMiddleware,(req,res) => {
-    res.send("dummy signup route")
+userRouter.get("/",authMiddleware,async (req,res) => {
+    const id = req.id
+
+    const user = await prisma.user.findFirst({
+        where : {
+            id : id,
+        },
+
+        select : {
+            name : true,
+            email : true,
+        }
+    })
+
+    res.status(StatusCodes.OK).json({
+        user
+    })
+
 })
 
 export default userRouter;
