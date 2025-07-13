@@ -1,10 +1,12 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { BACKEND_URL } from "@/lib/config";
 import Appbar from "@/components/AppBar";
 import  Input  from "@/components/Input";
 import { ZapCell } from "@/components/ZapCell";
-import LinkButton  from "@/components/buttons/LinkButton";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -28,7 +30,7 @@ function useAvailableActionsAndTriggers() {
     }
 }
 
-export default function() {
+export default function Page()  {
     const router = useRouter();
     const { availableActions, availableTriggers } = useAvailableActionsAndTriggers();
     const [selectedTrigger, setSelectedTrigger] = useState<{
@@ -52,18 +54,26 @@ export default function() {
                     return;
                 }
 
-                const response = await axios.post(`${BACKEND_URL}/api/v1/zap`, {
-                    "availableTriggerId": selectedTrigger.id,
-                    "triggerMetadata": {},
-                    "actions": selectedActions.map(a => ({
-                        availableActionId: a.availableActionId,
-                        actionMetadata: a.metadata
-                    }))
-                }, {
-                    headers: {
-                        Authorization: localStorage.getItem("token")
-                    }
-                })
+               try {
+                    const response = await axios.post(`${BACKEND_URL}/api/v1/zap`, {
+                        "availableTriggerId": selectedTrigger.id,
+                        "triggerMetadata": {},
+                        "actions": selectedActions.map(a => ({
+                            availableActionId: a.availableActionId,
+                            actionMetadata: a.metadata
+                        }))
+                    }, {
+                        headers: {
+                            Authorization: localStorage.getItem("token")
+                        }
+                    })
+
+                    console.log(response)
+               }
+               catch(err) {
+                    console.log(err)
+
+               }
                 
                 router.push("/dashboard");
 
@@ -76,7 +86,7 @@ export default function() {
                 }} name={selectedTrigger?.name ? selectedTrigger.name : "Trigger"} index={1} />
             </div>
             <div className="w-full pt-2 pb-2">
-                {selectedActions.map((action, index) => <div className="pt-2 flex justify-center"> <ZapCell onClick={() => {
+                {selectedActions.map((action, index) => <div key={index} className="pt-2 flex justify-center"> <ZapCell  onClick={() => {
                     setSelectedModalIndex(action.index);
                 }} name={action.availableActionName ? action.availableActionName : "Action"} index={action.index} /> </div>)}
             </div>
@@ -107,7 +117,7 @@ export default function() {
                 })
             } else {
                 setSelectedActions(a => {
-                    let newActions = [...a];
+                    const newActions = [...a];
                     newActions[selectedModalIndex - 2] = {
                         index: selectedModalIndex,
                         availableActionId: props.id,
@@ -161,8 +171,8 @@ function Modal({ index, onSelect, availableItems }: { index: number, onSelect: (
                         })
                     }} />}
 
-                    {step === 0 && <div>{availableItems.map(({id, name, image}) => {
-                            return <div onClick={() => {
+                    {step === 0 && <div>{availableItems.map(({id, name, image},index) => {
+                            return <div key={index} onClick={() => {
                                 if (isTrigger) {
                                     onSelect({
                                         id,
