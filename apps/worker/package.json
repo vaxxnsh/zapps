@@ -8,5 +8,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@repo/database" : "*",
+    "@solana/web3.js": "^1.98.2",
+    "bs58": "^6.0.0",
+    "nodemailer": "^7.0.5"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.17"
+  }
 }
